@@ -1,0 +1,121 @@
+<div class="exhausterCard" *ngIf="exhauster">
+    <div class="title">
+        <span class="status" [ngStyle]="{'background': getColor(exhauster.status)}"></span>
+        <span class="name">Эксгаустер {{exhauster.name}}</span>
+        <!-- <span class="spacer"></span> -->
+        <a [routerLink]="[exhauster.id]" [queryParams]="{view: 'graph'}"  class="more" tuiIconButton size="s" icon="tuiIconChevronRightLarge" appearance="icon"></a>
+    </div>
+    <div class="rotor">
+        <div class="title">
+            <span class="rotorNumber">Ротор №{{exhauster.rotorNumber}}</span>
+            <span class="date">{{exhauster.rotorDate | date : 'dd.MM.yyyy'}}</span>
+            <a tuiLink href="#" class="change">Изменить</a>
+        </div>
+        <hr>
+        <div class="lastChange">
+            <div class="legend">Последняя замена ротора</div>
+            <div class="dates">
+                <div class="changed">{{getLastChange()}} сут</div>
+                <div class="prediction">
+                    <div class="text">
+                        <span>
+                            Прогноз
+                        </span> 
+                        <ng-container [ngSwitch]="getChangeStatus()">
+                            <ng-template ngSwitchCase="WARNING">
+                                <tui-svg src="/assets/icons/warning.svg" alt="warning"></tui-svg>
+                            </ng-template>
+                            <ng-template ngSwitchCase="DANGER">
+                                <tui-svg src="/assets/icons/danger.svg" alt="danger"></tui-svg>
+                            </ng-template>
+                            <ng-template ngSwitchDefault></ng-template>
+                        </ng-container>
+                    </div>
+                    <div class="value">{{getChangePrediction()}} сут</div>
+                </div>
+            </div>
+        </div>
+        <div class="scheme">
+            <img src="/assets/images/scheme.png" alt="Scheme">
+        </div>
+        <ng-container *ngIf="getBearingsInfo() as bearingsInfo">
+            <div class="warnings" *ngIf="bearingsInfo.warnings.length">
+                <div class="header">
+                    <button (click)="warningsExpanded = !warningsExpanded" tuiIconButton appearance="icon" size="s" [icon]="warningsExpanded ? 'tuiIconChevronDown' : 'tuiIconChevronRight'"></button>
+                    <span class="text">Предупреждение</span>
+                </div>
+                <tui-expand [expanded]="warningsExpanded">
+                    <ng-template tuiExpandContent>
+                        <div class="bearings">
+                            <div *ngFor="let warning of bearingsInfo.warnings" class="bearing">
+                                <span class="name">№{{warning.idx}} п-к</span>
+                                <span class="spacer"></span>
+                                <div class="badge" *ngIf="warning.temp && (warning.temp != 'ok')" [ngClass]="warning.temp == 'danger' ? {'danger': true} : {'warning': true}">
+                                    <span class="icon">
+                                        <span>T</span>
+                                        <tui-svg src="/assets/icons/thermometer.svg" alt=""></tui-svg>
+                                    </span>
+                                </div>
+                                <div class="badge" *ngIf="warning.vibr && (warning.vibr != 'ok')" [ngClass]="warning.vibr == 'danger' ? {'danger': true} : {'warning': true}">
+                                    <span class="icon">
+                                        <span>V</span>
+                                        <tui-svg src="/assets/icons/radio.svg" alt=""></tui-svg>
+                                    </span>
+                                </div>
+                            </div>
+                            <div *ngIf="bearingsInfo.oilStatus != 'OK'" class="bearing">
+                                <span class="oilName">Уровень масла</span>
+                                <span class="spacer"></span>
+                                <div class="badge" [ngClass]="bearingsInfo.oilStatus == 'DANGER' ? {'danger': true} : {'warning': true}">
+                                    <span class="icon">
+                                        <span>L</span>
+                                        <tui-svg src="/assets/icons/water.svg" alt=""></tui-svg>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </ng-template>
+                </tui-expand>
+            </div>
+
+            <div class="oks">
+                <div class="header">
+                    <button (click)="bearingsExpanded = !bearingsExpanded" tuiIconButton appearance="icon" size="s" [icon]="bearingsExpanded ? 'tuiIconChevronDown' : 'tuiIconChevronRight'"></button>
+                    <span class="text">Все подшипники</span>
+                </div>
+                <tui-expand [expanded]="bearingsExpanded">
+                    <ng-template tuiExpandContent>
+                        <div class="bearings">
+                            <div *ngFor="let normal of bearingsInfo.normals" class="bearing">
+                                <span>№{{normal.idx}} п-к</span>
+                                <span class="spacer"></span>
+                                <div class="badge">
+                                    <span class="icon">
+                                        <span>T</span>
+                                        <tui-svg src="/assets/icons/thermometer.svg" alt=""></tui-svg>
+                                    </span>
+                                </div>
+                                <div class="badge">
+                                    <span class="icon">
+                                        <span>V</span>
+                                        <tui-svg src="/assets/icons/radio.svg" alt=""></tui-svg>
+                                    </span>
+                                </div>
+                            </div>
+                            <div *ngIf="bearingsInfo.oilStatus == 'OK'" class="bearing">
+                                <span class="oilName">Уровень масла</span>
+                                <span class="spacer"></span>
+                                <div class="badge">
+                                    <span class="icon">
+                                        <span>L</span>
+                                        <tui-svg src="/assets/icons/water.svg"></tui-svg>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </ng-template>
+                </tui-expand>
+            </div>
+        </ng-container>
+    </div>
+</div>

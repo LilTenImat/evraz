@@ -1,0 +1,100 @@
+@import '@taiga-ui/core/styles/taiga-ui-local.less';
+ 
+.datePicker{
+    position: absolute;
+    top: 65px;
+    left: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 6px;
+    gap: 10px;
+
+    // width: 440px;
+    background: white;
+    border-radius: 4px;
+
+    // --tui-height-l: var(--tui-height-m);
+    // --tui-font-text-m: unset;
+
+    &>*{
+        flex: 1 1 50%;
+    }
+
+    --tui-base-01: var(--tui-primary);
+}
+
+// .chartFrame{
+//     height: 100%;
+// }
+
+.color() {
+    color: var(--tui-support-01);
+ 
+    &:first-child {
+        color: var(--tui-support-08);
+    }
+ 
+    &:last-child {
+        color: var(--tui-support-12);
+    }
+}
+ 
+.axes {
+    height: calc( 100vh - 310px );
+    width: 100%;
+}
+ 
+.zoomControl{
+    display: flex;
+    justify-content: flex-end;
+    padding: 16px 0;
+    gap: 10px;
+    .divider{
+        height: var(--tui-height-s);
+        width: 1px;
+        background: #EFEFEF;
+    }
+    tui-select{
+        min-width: 100px;
+    }
+    button[tuiIconButton]{
+        background: #FAFAFA;
+        border: 1px solid #EAEAEA;
+        border-radius: var(--tui-radius-s)
+    }
+    border-bottom: 1px solid #EFEFEF;
+}
+ 
+.legend {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+ 
+.item {
+    .color();
+    display: flex;
+    align-items: center;
+    margin: 0 0.75rem;
+ 
+    &:before {
+        content: '';
+        border-bottom: 0.125rem solid;
+        width: 1rem;
+        margin-right: 0.5rem;
+    }
+}
+ 
+.name {
+    color: var(--tui-text-01);
+}
+ 
+.value {
+    color: var(--tui-text-01-night);
+}
+ 
+.chart {
+    .color();
+    .fullsize();
+}

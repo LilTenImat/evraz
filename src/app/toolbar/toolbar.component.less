@@ -1,0 +1,62 @@
+@import '@taiga-ui/core/styles/taiga-ui-local.less';
+
+.toolbar {
+
+    --tui-height-m: 40px;
+
+    .menu {
+        --tui-primary-text: white;
+    }
+
+    box-sizing: border-box;
+    width: 100vw;
+    height: 54px;
+    display: flex;
+    align-items: center;
+    background: white;
+    border-bottom: 1px solid #EAEAEA;
+    padding: 8px 20px;
+
+    &>* {
+        margin: 0 1em;
+    }
+
+    .divider {
+        width: 1px;
+        background: #F4F4F4;
+        height: 40px;
+        margin: 0;
+    }
+
+    .logo {
+        height: 1.5em;
+    }
+
+    .spacer {
+        flex: 1 1 auto;
+    }
+
+    .avatar {
+        --tui-secondary-active: #F4F4F4;
+
+        ::ng-deep [tuiWrapper][data-appearance='icon'] {
+            color: black;
+            opacity: 1;
+        }
+
+        tui-avatar{
+            height: 40px;
+            width: 40px;
+            translate: -10px 0;
+        }
+    }
+}
+
+.dropdown {
+    padding: 1rem;
+}
+.breadcrumbs, .directory{
+    @media @tui-tablet {
+        display: none;
+    }
+}

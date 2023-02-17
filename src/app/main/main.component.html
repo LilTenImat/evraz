@@ -1,0 +1,71 @@
+<div class="tui-container tui-container_fullwidth wrapper">
+    <div class="tui-row tui-row_adaptive title">
+        <div class="tui-col_lg-12 tui-col_md-12 tui-col_xs-12">
+            <div class="content">
+                <button class="icon" [disabled]="true" tuiIconButton [icon]="'tuiIconFileTextLarge'" size="s"></button>
+                <span>
+                    Главный экран
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="tui-row tui-row_adaptive legend">
+        <div class="tui-col_lg-12 tui-col_md-12 tui-col_xs-12">
+            <div class="content">
+                <span class="element">
+                    <span class="icon">
+                        <span>T</span>
+                        <tui-svg src="/assets/icons/thermometer.svg" alt=""></tui-svg>
+                    </span>
+                    <span class="text">
+                        Темпиратура
+                    </span>
+                </span>
+                <span class="element">
+                    <span class="icon">
+                        <span>V</span>
+                        <tui-svg src="/assets/icons/radio.svg" alt=""></tui-svg>
+                    </span>
+                    <span class="text">
+                        Вибрация
+                    </span>
+                </span>
+                <span class="element">
+                    <span class="icon">
+                        <span>L</span>
+                        <tui-svg src="/assets/icons/water.svg" alt=""></tui-svg>
+                    </span>
+                    <span class="text">
+                        Уровень масла
+                    </span>
+                </span>
+                <span class="element">
+                    <span class="icon" style="background: var(--tui-warning-fill);"></span>
+                    <span class="text">
+                        Предупреждение
+                    </span>
+                </span>
+                <span class="element">
+                    <span class="icon" style="background: var(--tui-error-fill);"></span>
+                    <span class="text">
+                        Опасность
+                    </span>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="tui-row tui-row_adaptive machines">
+        <div *ngFor="let machine of machines; index as i" class="tui-col_lg-4 tui-col_md-6 tui-col_xs-12 machine">
+            <div class="name">
+                Агломашина №{{i + 1}}
+            </div>
+            <div class="tui-row tui-row_adaptive exhausters">
+                <div *ngFor="let exhauster of machine.exhausters" class="tui-col_lg-6 tui-col_md-6 tui-col_xs-6 exhauster">
+                    <exhauster-card [exhauster]="exhauster"></exhauster-card>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

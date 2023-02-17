@@ -1,0 +1,58 @@
+.info{
+    height: 60px;
+    position: relative;
+    display: flex;
+    justify-content: flex-end;
+    padding-bottom: 16px;
+    .switch{
+        position: absolute;
+        right: 0;
+        top: 0;
+        display: flex;
+        background: white;
+        border-radius: 4px;
+        padding: 6px;
+        justify-content: center;
+        align-items: center;
+        gap: 6px;
+        
+        ::ng-deep [tuiWrapper][data-appearance='flat']{
+            --tui-link: var(--tui-primary);
+            --tui-link-hover: var(--tui-primary-hover);
+            --tui-link-active: var(--tui-primary-active);
+            --tui-secondary-active: var(--tui-base-02);
+        }
+    }
+}
+
+.infoContainer{
+    background: white;
+    border-radius: var(--tui-radius-m);
+    min-height: calc(100vh - 150px);
+    box-sizing: border-box;
+    border: 1px solid #EAEAEA;
+    overflow: hidden;
+}
+
+.header{
+    background: #FAFAFA;
+    border-bottom: 1px solid #EAEAEA;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    .content{
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+
+        button{
+            --tui-primary-text: white;
+        }
+        span{
+            font-weight: bold;
+        }
+    }
+
+    .saveExcel{
+        margin-left: auto;
+    }
+}

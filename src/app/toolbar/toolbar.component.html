@@ -1,0 +1,33 @@
+<div class="toolbar">
+    <button tuiIconButton [icon]="'tuiIconMenuLarge'" size="m" class="menu"></button>
+    <div class="divider"></div>
+    <a href="https://www.evraz.com/ru/" class="logo">
+        <img class="logo"
+            src="https://thumb.tildacdn.com/tild3234-3765-4934-b530-393661306466/-/resize/168x/-/format/webp/434.png"
+            alt="ЕВРАЗ">
+    </a>
+    <tui-breadcrumbs [size]="'m'" class="breadcrumbs" *ngIf="breadcrumps$">
+        <ng-container *ngFor="let item of breadcrumps$ | async">
+            <a *tuiItem tuiLink [routerLink]="item.link" routerLinkActive="active">
+                {{ item.title }}
+            </a>
+        </ng-container>
+    </tui-breadcrumbs>
+    <div class="spacer"></div>
+    <button tuiButton size="s" class="directory">Справочник</button>
+
+    <tui-badged-content [colorTop]="newNotifications ? 'var(--tui-error-fill)' : '' " size="s">
+        <button tuiIconButton size="s" icon="tuiIconBell" appearance="outline"></button>
+    </tui-badged-content>
+    <div class="divider"></div>
+    <span (tuiActiveZoneChange)="onActiveZone($event)">
+        <button class="avatar" tuiButton type="button" appearance="icon" size="s"
+            [iconRight]="open ? 'tuiIconChevronUpLarge' : 'tuiIconChevronDownLarge'" [tuiDropdown]="dropdownContent"
+            [tuiDropdownManual]="open" (tuiObscured)="onObscured($event)" (click)="onClick()">
+            <tui-avatar size="s" text="Kirill Levin"></tui-avatar>
+        </button>
+        <ng-template #dropdownContent>
+            <div class="dropdown">But there is nothing to choose...</div>
+        </ng-template>
+    </span>
+</div>
