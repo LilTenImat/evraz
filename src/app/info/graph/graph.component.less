@@ -2,7 +2,7 @@
  
 .datePicker{
     position: absolute;
-    top: 65px;
+    top: 70px;
     left: 16px;
     display: flex;
     justify-content: center;
@@ -17,8 +17,8 @@
     // --tui-height-l: var(--tui-height-m);
     // --tui-font-text-m: unset;
 
-    &>*{
-        flex: 1 1 50%;
+    tui-input-date-range, tui-input-date-time{
+        flex: 1 1;
     }
 
     --tui-base-01: var(--tui-primary);
@@ -28,21 +28,90 @@
 //     height: 100%;
 // }
 
+
 .color() {
     color: var(--tui-support-01);
  
-    &:first-child {
+    &:nth-child(2) {
+        color: var(--tui-support-02);
+    }
+    &:nth-child(3) {
+        color: var(--tui-support-03);
+    }
+    &:nth-child(4) {
+        color: var(--tui-support-04);
+    }
+    &:nth-child(5) {
+        color: var(--tui-support-05);
+    }
+    &:nth-child(6) {
+        color: var(--tui-support-06);
+    }
+    &:nth-child(7) {
+        color: var(--tui-support-07);
+    }
+    &:nth-child(8) {
         color: var(--tui-support-08);
     }
- 
-    &:last-child {
+    &:nth-child(9) {
+        color: var(--tui-support-09);
+    }
+    &:nth-child(10) {
+        color: var(--tui-support-10);
+    }
+    &:nth-child(11) {
+        color: var(--tui-support-11);
+    }
+    &:nth-child(12) {
         color: var(--tui-support-12);
+    }
+    &:nth-child(13) {
+        color: var(--tui-support-13);
+    }
+    &:nth-child(14) {
+        color: var(--tui-support-14);
+    }
+    &:nth-child(15) {
+        color: var(--tui-support-15);
+    }
+    &:nth-child(16) {
+        color: var(--tui-support-16);
+    }
+    &:nth-child(17) {
+        color: var(--tui-support-17);
+    }
+    &:nth-child(18) {
+        color: var(--tui-support-18);
+    }
+    &:nth-child(19) {
+        color: var(--tui-support-19);
+    }
+    &:nth-child(20) {
+        color: var(--tui-support-20);
+    }
+    &:nth-child(21) {
+        color: var(--tui-support-21);
     }
 }
  
 .axes {
     height: calc( 100vh - 310px );
     width: 100%;
+    // TODO
+    // background: rgb(255,255,255);
+    // background: linear-gradient(0deg, rgba(255,255,255,0.75) 20%, rgba(251,244,0,0.75) 60%, rgba(255,0,0,0.75) 87%);
+
+    ::ng-deep div.t-line[style*="border-top-style: dotted"]{
+        border-color: var(--tui-error-fill);
+        background: var(--tui-error-bg);
+    }
+
+    ::ng-deep div.t-line[style*="border-top-style: dashed"]{
+        border-color: var(--tui-warning-fill);
+        background: var(--tui-warning-bg);
+    }
+
+    // border-top-style: dashed;
 }
  
 .zoomControl{
@@ -97,4 +166,76 @@
 .chart {
     .color();
     .fullsize();
+}
+
+.filters{
+
+    .header{
+        padding: 16px 0 5px 0;
+        display: flex;
+        align-items: center;
+        gap: 1em;
+        .filterArrow{
+            padding: 10px 0;
+            flex: 0 0 20px;
+            border-bottom: 2px solid #EFEFEF;
+            .arrow{
+                background: #FAFAFA;
+                border-radius: 3px;
+                width: 20px;
+                height: 20px;
+                tui-svg{
+                    height: 20px !important;
+                    width: 20px !important;
+                }
+            }
+        }
+        .filterLabel{
+            color: #9B9B9C;
+            padding: 10px;
+            flex: 1 1;
+            border-bottom: 2px solid #EFEFEF;
+        }
+        .filterValue{
+            color: #9B9B9C;
+            padding: 10px;
+            flex: 0 1 min-content;
+            border-bottom: 2px solid #EFEFEF;
+        }
+    }
+
+    .tree{
+        --tui-link: var(--tui-text-01);
+        --tui-link-hover: var(--tui-text-01);
+        --tui-link-active: var(--tui-text-01);
+
+        ::ng-deep button[data-shape=rounded]{
+            background: #FAFAFA;
+            border-radius: 3px;
+        }
+    }
+    .checkbox{
+        background: #FAFAFA;
+        border: 1px solid #EFEFEF;
+        border-radius: 3px;
+        padding: 10px;
+        width: 100%;
+        position: relative;
+        padding-right: 50px;
+    }
+    .badgeValue{
+        position: absolute;
+        right: 10px;
+        top: 8px;
+        color: var(--tui-text-01);
+        border-radius: 2px;
+        &.warning{
+            color: var(--tui-warning-fill);
+            background: var(--tui-warning-bg);
+        }
+        &.danger{
+            color: var(--tui-error-fill);
+            background: var(--tui-error-bg);
+        }
+    }
 }

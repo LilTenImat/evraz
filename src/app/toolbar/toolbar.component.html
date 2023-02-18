@@ -6,7 +6,7 @@
             src="https://thumb.tildacdn.com/tild3234-3765-4934-b530-393661306466/-/resize/168x/-/format/webp/434.png"
             alt="ЕВРАЗ">
     </a>
-    <tui-breadcrumbs [size]="'m'" class="breadcrumbs" *ngIf="breadcrumps$">
+    <tui-breadcrumbs [size]="'l'" class="breadcrumbs" *ngIf="breadcrumps$">
         <ng-container *ngFor="let item of breadcrumps$ | async">
             <a *tuiItem tuiLink [routerLink]="item.link" routerLinkActive="active">
                 {{ item.title }}

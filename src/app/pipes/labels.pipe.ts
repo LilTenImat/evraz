@@ -4,6 +4,11 @@ import {TUI_MONTHS} from '@taiga-ui/core';
 import {Observable, of} from 'rxjs';
 import {map} from 'rxjs/operators';
  
+interface DateRange{
+    from: Date,
+    to: Date
+}
+
 @Pipe({
     name: `labels`,
 })
@@ -12,21 +17,21 @@ export class LabelsPipe implements PipeTransform {
         @Inject(TUI_MONTHS) private readonly months$: Observable<readonly string[]>,
     ) {}
  
-    transform({from, to}: TuiDayRange): Observable<readonly string[]> {
-        const length = TuiDay.lengthBetween(from, to);
+    transform({from, to}: DateRange, initialLength?: number): Observable<readonly string[]> {
+        const length = TuiDay.lengthBetween(TuiDay.fromLocalNativeDate(from), TuiDay.fromLocalNativeDate(to));
  
         if (length > 90) {
             return this.months$.pipe(
                 map(months =>
                     Array.from(
-                        {length: TuiMonth.lengthBetween(from, to) + 1},
-                        (_, i) => months[from.append({month: i}).month],
+                        {length: TuiMonth.lengthBetween(TuiDay.fromLocalNativeDate(from), TuiDay.fromLocalNativeDate(to)) + 1},
+                        (_, i) => months[TuiDay.fromLocalNativeDate(from).append({month: i}).month],
                     ),
                 ),
             );
         }
  
-        const range = Array.from({length}, (_, day) => from.append({day}));
+        const range = Array.from({length}, (_, day) => TuiDay.fromLocalNativeDate(from).append({day}));
         const mondays = onlyMondays(range);
         const days = range.map(String);
  
@@ -41,8 +46,15 @@ export class LabelsPipe implements PipeTransform {
         if (length > 7) {
             return of(even(days));
         }
- 
-        return of(days);
+
+        if(length > 1){
+            return of(days);
+        }
+
+        const h = (to.getDate()  - from.getDate()) / (initialLength || 10); 
+        return of( (new Array((initialLength || 10))).map((_, idx) => ( new Date(from.getDate() + h)).toLocaleTimeString('ru', {hour: 'numeric', minute:'numeric'} ) ));
+
+
     }
 }
  

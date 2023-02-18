@@ -26,7 +26,6 @@ import { LabelsPipe } from "./pipes/labels.pipe";
 		MainComponent,
 		GraphComponent,
 		SchemeComponent,
-
 		LabelsPipe
 	],
 	imports: [

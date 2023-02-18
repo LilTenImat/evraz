@@ -1,5 +1,6 @@
-import { Component, Input, OnInit, ChangeDetectionStrategy, Inject } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { Component, Input, OnInit, ChangeDetectionStrategy, Inject, ChangeDetectorRef } from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
+import { TuiLineHandler } from '@taiga-ui/addon-charts';
 import {
     TUI_IS_CYPRESS,
     TuiDay,
@@ -8,9 +9,26 @@ import {
     TuiMapper,
     TuiMatcher,
     tuiPure,
+    TuiHandler,
+    EMPTY_ARRAY,
+    TuiTime,
 } from '@taiga-ui/cdk';
 import {TuiPoint} from '@taiga-ui/core';
+import { tuiCreateTimePeriods } from '@taiga-ui/kit';
+import { map, Observable } from 'rxjs';
+import { DataService } from 'src/app/services/data.service';
  
+interface DateRange{
+    from: Date,
+    to: Date
+}
+
+interface TreeNode {
+    value?: string;
+    readonly text: string;
+    readonly children?: readonly TreeNode[];
+}
+
 @Component({
     selector: 'graph',
     templateUrl: 'graph.component.html',
@@ -20,98 +38,196 @@ import {TuiPoint} from '@taiga-ui/core';
 
 export class GraphComponent implements OnInit {
     @Input() id: string = '';
-    graphData: any;
-
-    data = new TuiDayRange(
+    
+    show: TuiDayRange = new TuiDayRange(
+        TuiDay.currentLocal().append({month: -1}),
         TuiDay.currentLocal(),
-        TuiDay.currentLocal().append({month: 5}),
-    );
-    show = this.data;
+    )
+
+    data: DateRange = {
+        from: this.show.from.toLocalNativeDate(),
+        to: this.show.to.toLocalNativeDate()
+    };
+
     public readonly maxLength: TuiDayLike = {month: 6};
     public readonly zoom = [1, 10, 30, 60];
+    public readonly horizontalLines = 10;
     currentZoom = new FormControl(10);
-    days: ReadonlyArray<ReadonlyArray<[TuiDay, number]>> = this.computeArrays(this.data);
+    
+    range = 100;
+
+    days: ReadonlyArray<ReadonlyArray<[Date, number]>> = new Array([]);
+
+    values: Observable<TuiPoint[]>;
 
     constructor(
-        @Inject(TUI_IS_CYPRESS) readonly isCypress: boolean
+        @Inject(TUI_IS_CYPRESS) readonly isCypress: boolean,
+        
+        private dataService: DataService,
+
+        private cdRef: ChangeDetectorRef
     ) {
-        this.graphData = {
-            'bearings': {
-                '1PS': {
-                    'temp': {selected: false, value: 0},
-                    'vert': {selected: false, value: 0},
-                    'horz': {selected: false, value: 0},
-                    'axis': {selected: false, value: 0},
-                },
-                '2PS': {
-                    'temp': {selected: false, value: 0},
-                    'vert': {selected: false, value: 0},
-                    'horz': {selected: false, value: 0},
-                    'axis': {selected: false, value: 0},
-                },
-                '7PS': {
-                    'temp': {selected: false, value: 0},
-                    'vert': {selected: false, value: 0},
-                    'horz': {selected: false, value: 0},
-                    'axis': {selected: false, value: 0},
-                },
-                '8PS': {
-                    'temp': {selected: false, value: 0},
-                    'vert': {selected: false, value: 0},
-                    'horz': {selected: false, value: 0},
-                    'axis': {selected: false, value: 0},
-                },
-                '9PS': {
-                    'temp': {selected: false, value: 0},
-                    'vert': {selected: false, value: 0},
-                    'horz': {selected: false, value: 0},
-                    'axis': {selected: false, value: 0},
-                },
+        
+        this.values = this.dataService.data$.pipe(
+            map((arr: any[]) => arr.map((val, index) => [index, val['SM_Exgauster\\[0:0]']] as TuiPoint))
+        )
+    }
+
+    map = new Map<TreeNode, boolean>();
+ 
+    readonly treeData: TreeNode = {
+        text: 'Фильтры',
+        children: [
+            {
+                text: 'Подшипнки',
+                children: [
+                    {
+                        text: '1 ПС',
+                        children: [
+                            {value: '0000', text: 'T, °С'},
+                            {value: '0000', text: 'Верт, мм/с'},
+                            {value: '0000', text: 'Гориз, мм/с'},
+                            {value: '0000', text: 'Ось, мм/с'}
+                        ],
+                    },
+                    {
+                        text: '2 ПС',
+                        children: [
+                            {value: '0000', text: 'T, °С'},
+                            {value: '0000', text: 'Верт, мм/с'},
+                            {value: '0000', text: 'Гориз, мм/с'},
+                            {value: '0000', text: 'Ось, мм/с'}
+                        ],
+                    },
+                    {
+                        text: '7 ПС',
+                        children: [
+                            {value: '0000', text: 'T, °С'},
+                            {value: '0000', text: 'Верт, мм/с'},
+                            {value: '0000', text: 'Гориз, мм/с'},
+                            {value: '0000', text: 'Ось, мм/с'}
+                        ],
+                    },
+                    {
+                        text: '8 ПС',
+                        children: [
+                            {value: '0000', text: 'T, °С'},
+                            {value: '0000', text: 'Верт, мм/с'},
+                            {value: '0000', text: 'Гориз, мм/с'},
+                            {value: '0000', text: 'Ось, мм/с'}
+                        ],
+                    },
+                    {
+                        text: '9 ПС',
+                        children: [
+                            {value: '0000', text: 'T, °С'},
+                        ],
+                    },
+                ],
             },
-            'reducer': {
-                '3PS': {selected: false, value: 0},
-                '4PS': {selected: false, value: 0},
-                '5PS': {selected: false, value: 0},
-                '6PS': {selected: false, value: 0},
+            {value: '0000', text: 'Редуктор', children:[
+                {value: '0000', text: 'T на 3 ПС, °С'},
+                {value: '0000', text: 'T на 4 ПС, °С'},
+                {value: '0000', text: 'T на 5 ПС, °С'},
+                {value: '0000', text: 'T на 6 ПС, °С'},
+            ]},
+            {
+                text: 'Маслобак',
+                children: [{value: '0000', text: 'Уровень масла, %'}, {value: '0000', text: 'Давление масла, кг/см2'}],
             },
-            'oilTank': {
-                'oilLevel': {selected: false, value: 0},
-                'oilPressure': {selected: false, value: 0},
+            {
+                text: 'Газовый коллектор',
+                children: [
+                    {value: '0000', text: 'T газа, °С'}, 
+                    {value: '0000', text: 'Разряжение, мм.в.ст'},
+                    {value: '0000', text: 'Уровень пыли, мг/м3'}, 
+                ],
             },
-            'gasCollector':{
-                'temp': {selected: false, value: 0},
-                'pressure': {selected: false, value: 0},
-                'dustLevel': {selected: false, value: 0},
+            {
+                text: 'Главный привод',
+                children: [
+                    {value: '0000', text: 'Ток, А'}, 
+                    {value: '0000', text: 'Ток двигателя, А'},
+                    {value: '0000', text: 'Напряжение ротера, кВт'}, 
+                    {value: '0000', text: 'Напряжение статера, кВт'}, 
+                ],
             },
-            'mainDrive':{
-                'amperage': {selected: false, value: 0},
-                'engineAmperage': {selected: false, value: 0},
-                'rotorAmperage': {selected: false, value: 0},
-                'staterAmperage': {selected: false, value: 0},
+            {
+                text: 'Охладитель',
+                children: [
+                    {value: '0000', text: 'T воды до, °С'}, 
+                    {value: '0000', text: 'T воды после, °С'},
+                    {value: '0000', text: 'T масла до, °С'}, 
+                    {value: '0000', text: 'T масла после, °С'}, 
+                ],
             },
-            'cooler':{
-                'waterTempBefore': {selected: false, value: 0},
-                'waterTempAfter': {selected: false, value: 0},
-                'oilTempBefore': {selected: false, value: 0},
-                'oilTempAfter': {selected: false, value: 0},
-            }
+        ],
+    };
+    
+    ngOnInit() {
+        // this.dataService.data$.subscribe((message: any) => {
+            //     console.log(message['moment'])
+        // });
+     }
+
+    //  getValues(){
+    //     // return []
+    //     return this.values.map( (val: {moment: Date, value: number}, index: number) => [index, val.value] as TuiPoint)
+    //  }
+    
+    newFrom([date, time]: [TuiDay, TuiTime]){
+        this.data = {
+            from: new Date(date.toLocalNativeDate().getTime() + time?.toAbsoluteMilliseconds() || 0),
+            to: date.toLocalNativeDate().getTime() - this.data.to.getTime() > 0 ? date.append({day: 1}).toLocalNativeDate() : this.data.to
         }
     }
 
-    ngOnInit() { }
+    newTo([date, time]: [TuiDay, TuiTime]){
+        this.data = {
+            from: date.toLocalNativeDate().getTime() - this.data.from.getTime() < 0 ? date.append({day: -1}).toLocalNativeDate() : this.data.to,
+            to: new Date(date.toLocalNativeDate().getTime() + time?.toAbsoluteMilliseconds() || 0),
+        }
+    }
+
+    readonly handler: TuiHandler<TreeNode, readonly TreeNode[]> = item =>
+        item.children || EMPTY_ARRAY;
+ 
+    readonly getValue = (item: TreeNode, map: Map<TreeNode, boolean>): boolean | null => {
+        const flat = flatten(item);
+        const result = !!map.get(flat[0]);
+ 
+        for (let i = 0; i < flat.length; i++) {
+            if (result !== !!map.get(flat[i])) {
+                return null;
+            }
+        }
+ 
+        return result;
+    };
+    readonly horizontalLinesHandler: TuiLineHandler = (index, total) => {
+        if(index < total * 0.3) return 'dotted';
+        if(index < total * 0.6) return 'dashed';
+        return 'solid';
+    };
+    
+    onChecked(node: TreeNode, value: boolean): void {
+        flatten(node).forEach(item => this.map.set(item, value));
+ 
+        this.map = new Map(this.map.entries());
+    }
 
     changeZoom(direction: number){
         const idx = this.zoom.findIndex(z => z == this.currentZoom.value);
         this.currentZoom.setValue(this.zoom[idx + direction]);
     }
 
-    get range(): TuiDayRange {
-        return this.computeRange(this.show);
-    }
+    // get range(): TuiDayRange {
+    //     return this.computeRange(this.show);
+    // }
  
     @tuiPure
-    getWidth({from, to}: TuiDayRange): number {
-        return TuiDay.lengthBetween(from, to);
+    getWidth({from, to}: DateRange): number {
+        return TuiDay.lengthBetween(TuiDay.fromLocalNativeDate(from), TuiDay.fromLocalNativeDate(to));
     }
  
     @tuiPure
@@ -122,15 +238,24 @@ export class GraphComponent implements OnInit {
     readonly filter: TuiMatcher<[TuiDay, number]> = ([day], {from, to}: TuiDayRange) =>
         day.daySameOrAfter(from) && day.daySameOrBefore(to);
  
-    readonly toNumbers: TuiMapper<ReadonlyArray<[TuiDay, number]>, readonly TuiPoint[]> =
-        (days, {from}: TuiDayRange) =>
-            days.map(
-                ([day, value]) =>
-                    [TuiDay.lengthBetween(from, day), value] as [number, number],
+    // readonly toNumbers: TuiMapper<ReadonlyArray<[TuiDay, number]>, readonly TuiPoint[]> =
+    //     (days, {from}: TuiDayRange) =>
+    //         days.map(
+    //             ([day, value]) =>
+    //                 [TuiDay.lengthBetween(from, day), value] as [number, number],
+    //         );
+    
+    readonly toNumbers: TuiMapper<ReadonlyArray<{moment: Date, value: number}>, readonly TuiPoint[]> =
+        (values) =>
+            values.map(
+                ({moment, value}, index) => [index, value]
             );
  
     onDataChange(data: TuiDayRange): void {
-        this.days = this.computeArrays(data);
+        this.data = {
+            from: data.from.toLocalNativeDate(), 
+            to: data.to.toLocalNativeDate()
+        }
     }
  
     @tuiPure
@@ -160,42 +285,10 @@ export class GraphComponent implements OnInit {
  
         return range;
     }
- 
-    // Random data generation
-    @tuiPure
-    private computeData(
-        {from, to}: TuiDayRange,
-        initial: number,
-    ): ReadonlyArray<[TuiDay, number]> {
-        return new Array(TuiDay.lengthBetween(from, to) + 1)
-            .fill(0)
-            .reduce<ReadonlyArray<[TuiDay, number]>>(
-                (array, _, i) => [
-                    ...array,
-                    [
-                        from.append({day: i}),
-                        this.isCypress
-                            ? initial
-                            : Math.max(
-                                  (i ? array[i - 1][1] : initial) +
-                                      Math.random() * 10 -
-                                      5,
-                                  0,
-                              ),
-                    ],
-                ],
-                [],
-            )
-            .filter(([day]) => day.dayOfWeek() < 5);
-    }
- 
-    private computeArrays(
-        data: TuiDayRange,
-    ): ReadonlyArray<ReadonlyArray<[TuiDay, number]>> {
-        return [
-            this.computeData(data, 100),
-            this.computeData(data, 75),
-            this.computeData(data, 50),
-        ];
-    }
+}
+
+function flatten(item: TreeNode): readonly TreeNode[] {
+    return item.children
+        ? item.children.map(flatten).reduce((arr, item) => [...arr, ...item], [])
+        : [item];
 }
