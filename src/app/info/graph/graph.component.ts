@@ -63,14 +63,38 @@ export class GraphComponent implements OnInit {
         private dataService: DataService,
     ) {
         this.dataService.data$.subscribe(newValue => {
-            this.updateTree(newValue);
+            const arr = this.graphData.value.slice();
+            for(let cp of this.checkedPaths){
+                let chartDataIdx = arr.findIndex(data => data.path == cp)
+                if(chartDataIdx == -1){
+                    chartDataIdx = arr.push({
+                        name: 'fuck',
+                        path: cp,
+                        values: []
+                    }) - 1;
+                } 
+
+                const pathParts = cp.split(',');
+                arr[chartDataIdx].values.push((newValue as any)[pathParts[0]][pathParts[1]])
+                arr[chartDataIdx].values = arr[chartDataIdx].values.slice(-50);
+            }
+
+            this.graphData.next(arr);
+
         })
     }
 
+    checkedPaths: string[] = [];
+
+    graphData = new BehaviorSubject<{
+        name: string,
+        path: string,
+        values: number[]
+    }[]>([]);
 
     map = new Map<TreeNode, boolean>();
  
-    treeData = new BehaviorSubject<TreeNode>({
+    treeData: TreeNode = {
         text: 'Фильтры',
         children: [
             {
@@ -160,14 +184,16 @@ export class GraphComponent implements OnInit {
                 ],
             },
         ],
-    });
-    treeData$ = this.treeData.asObservable()
+    };
     ngOnInit() {
         // this.dataService.data$.subscribe((message: any) => {
             //     console.log(message['moment'])
         // });
      }
 
+    mapValues(values: number[]){
+        return values.map((val, index) => [index, val] as TuiPoint)
+    }
     //  getValues(){
     //     // return []
     //     return this.values.map( (val: {moment: Date, value: number}, index: number) => [index, val.value] as TuiPoint)
@@ -302,10 +328,14 @@ export class GraphComponent implements OnInit {
         return 'solid';
     };
     
-    onChecked(node: TreeNode, value: boolean): void {
-        flatten(node).forEach(item => this.map.set(item, value));
- 
-        this.map = new Map(this.map.entries());
+    onChecked(path: string, value: boolean): void {
+        if(value){
+            this.checkedPaths.push(path)
+        } else {
+            const idx = this.checkedPaths.indexOf(path);
+            if(idx != -1)
+            this.checkedPaths.splice(idx, 1);
+        }
     }
 
     changeZoom(direction: number){

@@ -11,7 +11,7 @@
                 <div class="filterLabel">Агрегат</div>
                 <div class="filterValue">Значение</div>
             </div>
-            <ng-container *ngIf="treeData$ | async as treeData">
+            
                 <tui-tree
                     
                     class="tree"
@@ -21,13 +21,12 @@
                     [content]="content"
                     [childrenHandler]="handler"
                 ></tui-tree>
-            </ng-container>
             
             <ng-template #content let-item >
                 <tui-checkbox-labeled
                     class="tui-space_vertical-2  checkbox"
                     [ngModel]="item | tuiMapper : getValue : map"
-                    (ngModelChange)="onChecked(item, $event)"
+                    (ngModelChange)="onChecked(item.path, $event)"
                 >
                     {{ item.text }}
                     <tui-badge
@@ -66,27 +65,26 @@
             <button tuiIconButton (click)="changeZoom(-1)" [disabled]="(currentZoom.value == 1) || getWidth(data) <= 1" [icon]="'tuiIconMinus'" size="s" appearance="icon"></button>
         </div>
 
-        <!-- <ng-container *ngIf="days | async as values">
+        <ng-container *ngIf="graphData | async as values">
 
             <p class="legend">
                 <span
                     *ngFor="let chart of values; let index = index"
                     class="item"
                 >
-                    <small class="name">Chart {{ index + 1 }}</small>
+                    <small class="name">{{ chart.name }}</small>
                 </span>
             </p>
 
             <tui-axes
-                *ngIf="data | labels | async as labels"
                 class="axes"
-                [verticalLines]="labels.length"
+                [verticalLines]="10"
                 [horizontalLinesHandler]="horizontalLinesHandler"
                 [horizontalLines]="horizontalLines"
-                [axisXLabels]="labels"
-                [tuiLineChartHint]="hint"
-            >
-                <ng-container *ngIf="getWidth(data) > 90; else line">
+                >
+                <!-- [tuiLineChartHint]="hint" -->
+                <!-- [axisXLabels]="labels" -->
+                <!-- <ng-container *ngIf="getWidth(data) > 90; else line">
                     <tui-line-days-chart
                         *ngFor="let chart of days"
                         class="chart"
@@ -104,20 +102,20 @@
                         [width]="getWidth(data)"
                         [value]="[] | tuiFilter : filter : range | tuiMapper : toNumbers : range"
                     ></tui-line-chart>
-                </ng-template>
+                </ng-template> -->
             
                 <tui-line-chart 
-                    *ngFor="let value of values"
+                    *ngFor="let chartData of values"
                     class="chart"
                     [height]="5"
-                    [y]="0"
+                    [y]="-5"
                     [width]="range"
-                    [value]="value"
+                    [value]="mapValues(chartData.values)"
                 ></tui-line-chart>
                 
                 
             </tui-axes>
-        </ng-container> -->
+        </ng-container>
             
         <ng-template #hint let-data>
             <!-- <div class="tui-space_bottom-2">
