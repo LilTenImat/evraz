@@ -11,14 +11,17 @@
                 <div class="filterLabel">Агрегат</div>
                 <div class="filterValue">Значение</div>
             </div>
-            <tui-tree
-                class="tree"
-                *ngFor="let item of treeData.children"
-                [tuiTreeController]="true"
-                [value]="item"
-                [content]="content"
-                [childrenHandler]="handler"
-            ></tui-tree>
+            <ng-container *ngIf="treeData$ | async as treeData">
+                <tui-tree
+                    
+                    class="tree"
+                    *ngFor="let item of treeData.children"
+                    [tuiTreeController]="true"
+                    [value]="item"
+                    [content]="content"
+                    [childrenHandler]="handler"
+                ></tui-tree>
+            </ng-container>
             
             <ng-template #content let-item >
                 <tui-checkbox-labeled
@@ -62,53 +65,60 @@
             <button tuiIconButton (click)="changeZoom(1)" [disabled]="(currentZoom.value == 60) || getWidth(data) <= 1" [icon]="'tuiIconPlus'" size="s" appearance="icon"></button>
             <button tuiIconButton (click)="changeZoom(-1)" [disabled]="(currentZoom.value == 1) || getWidth(data) <= 1" [icon]="'tuiIconMinus'" size="s" appearance="icon"></button>
         </div>
-        <p class="legend">
-            <span
-                *ngFor="let chart of days; let index = index"
-                class="item"
-            >
-                <small class="name">Chart {{ index + 1 }}</small>
-            </span>
-        </p>
 
-        <tui-axes
-            *ngIf="data | labels | async as labels"
-            class="axes"
-            [verticalLines]="labels.length"
-            [horizontalLinesHandler]="horizontalLinesHandler"
-            [horizontalLines]="horizontalLines"
-            [axisXLabels]="labels"
-            [tuiLineChartHint]="hint"
-        >
-            <!-- <ng-container *ngIf="getWidth(data) > 90; else line">
-                <tui-line-days-chart
-                    *ngFor="let chart of days"
+        <!-- <ng-container *ngIf="days | async as values">
+
+            <p class="legend">
+                <span
+                    *ngFor="let chart of values; let index = index"
+                    class="item"
+                >
+                    <small class="name">Chart {{ index + 1 }}</small>
+                </span>
+            </p>
+
+            <tui-axes
+                *ngIf="data | labels | async as labels"
+                class="axes"
+                [verticalLines]="labels.length"
+                [horizontalLinesHandler]="horizontalLinesHandler"
+                [horizontalLines]="horizontalLines"
+                [axisXLabels]="labels"
+                [tuiLineChartHint]="hint"
+            >
+                <ng-container *ngIf="getWidth(data) > 90; else line">
+                    <tui-line-days-chart
+                        *ngFor="let chart of days"
+                        class="chart"
+                        [height]="400"
+                        [y]="0"
+                        [value]="[] | tuiFilter : filter : range"
+                    ></tui-line-days-chart>
+                </ng-container>
+                <ng-template #line>
+                    <tui-line-chart
+                        *ngFor="let chart of days"
+                        class="chart"
+                        [height]="400"
+                        [y]="0"
+                        [width]="getWidth(data)"
+                        [value]="[] | tuiFilter : filter : range | tuiMapper : toNumbers : range"
+                    ></tui-line-chart>
+                </ng-template>
+            
+                <tui-line-chart 
+                    *ngFor="let value of values"
                     class="chart"
-                    [height]="400"
+                    [height]="5"
                     [y]="0"
-                    [value]="[] | tuiFilter : filter : range"
-                ></tui-line-days-chart>
-            </ng-container>
-            <ng-template #line>
-                <tui-line-chart
-                    *ngFor="let chart of days"
-                    class="chart"
-                    [height]="400"
-                    [y]="0"
-                    [width]="getWidth(data)"
-                    [value]="[] | tuiFilter : filter : range | tuiMapper : toNumbers : range"
+                    [width]="range"
+                    [value]="value"
                 ></tui-line-chart>
-            </ng-template> -->
-            <tui-line-chart
-                *ngIf="values | async as values"
-                class="chart"
-                [height]="5"
-                [y]="0"
-                [width]="range"
-                [value]="values"
-            ></tui-line-chart>
-        </tui-axes>
-         
+                
+                
+            </tui-axes>
+        </ng-container> -->
+            
         <ng-template #hint let-data>
             <!-- <div class="tui-space_bottom-2">
                 <strong>{{ getDate(data[0][0], data.from) }}</strong>
@@ -121,13 +131,12 @@
         </ng-template>
     </div>
 
-    <div class="tui-col_lg-6 tui-col_md-8 tui-col_xs-10 datePicker">
+    <!-- <div class="tui-col_lg-6 tui-col_md-8 tui-col_xs-10 datePicker">
         <tui-input-date-range
             [maxLength]="maxLength"
             [(ngModel)]="show"
             [tuiTextfieldSize]="'m'"
             >
-            <!-- [tuiTextfieldIcon]="'tuiIconChevronDown'" -->
             Временной диапазон
         </tui-input-date-range>
         <tui-input-date-time
@@ -150,6 +159,6 @@
         >
             Конец периода
         </tui-input-date-time>
-    </div>
+    </div> -->
 </div>
 

@@ -3,7 +3,7 @@ import { BehaviorSubject, map, Observable, Observer, pipe, scan, tap } from 'rxj
 import { AnonymousSubject, Subject } from 'rxjs/internal/Subject';
 import {webSocket} from 'rxjs/webSocket';
 import { mockExhausters } from '../interfaces/exhauster';
-
+import { RecievedData, ExhausterData, mapper } from '../interfaces/data';
 
 const URL = 'ws://localhost:8080/ws'
 export interface Message {
@@ -18,18 +18,15 @@ export class DataService {
     // private subject!: AnonymousSubject<MessageEvent>;
     // public messages: Subject<Message>;
 
-    private data = new Subject<{[key: string]: number}>();
-    public data$ = this.data.asObservable().pipe(
-        tap(val => console.log(val['moment'], val['SM_Exgauster\\[0:0]'])),
-        scan( (all, current) => [...all, current], [] as any ),
-        pipe((arr: any) => arr.length > 100 ? arr.slice(1, 100) : arr)
-    ) as Observable<{[key: string]: number}[]>
+    private data = new Subject<ExhausterData>();
+
+    public data$ = this.data.asObservable();
     
     constructor() {
         const sock = webSocket(URL);
         sock.subscribe((ev: any) => {
             sock.next({message: 'ping'});
-            // this.data.next(JSON.parse(ev.data));
+            this.data.next(mapper(ev));
             console.log(ev['moment'])
         })
     }

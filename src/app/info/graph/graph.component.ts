@@ -15,9 +15,9 @@ import {
 } from '@taiga-ui/cdk';
 import {TuiPoint} from '@taiga-ui/core';
 import { tuiCreateTimePeriods } from '@taiga-ui/kit';
-import { map, Observable } from 'rxjs';
+import { BehaviorSubject, map, Observable, Subject } from 'rxjs';
 import { DataService } from 'src/app/services/data.service';
- 
+import { ExhausterData } from 'src/app/interfaces/data';
 interface DateRange{
     from: Date,
     to: Date
@@ -25,6 +25,7 @@ interface DateRange{
 
 interface TreeNode {
     value?: string;
+    path?: string;
     readonly text: string;
     readonly children?: readonly TreeNode[];
 }
@@ -56,26 +57,20 @@ export class GraphComponent implements OnInit {
     
     range = 100;
 
-    days: ReadonlyArray<ReadonlyArray<[Date, number]>> = new Array([]);
-
-    values: Observable<TuiPoint[]>;
-
     constructor(
         @Inject(TUI_IS_CYPRESS) readonly isCypress: boolean,
         
         private dataService: DataService,
-
-        private cdRef: ChangeDetectorRef
     ) {
-        
-        this.values = this.dataService.data$.pipe(
-            map((arr: any[]) => arr.map((val, index) => [index, val['SM_Exgauster\\[0:0]']] as TuiPoint))
-        )
+        this.dataService.data$.subscribe(newValue => {
+            this.updateTree(newValue);
+        })
     }
+
 
     map = new Map<TreeNode, boolean>();
  
-    readonly treeData: TreeNode = {
+    treeData = new BehaviorSubject<TreeNode>({
         text: 'Фильтры',
         children: [
             {
@@ -84,86 +79,89 @@ export class GraphComponent implements OnInit {
                     {
                         text: '1 ПС',
                         children: [
-                            {value: '0000', text: 'T, °С'},
-                            {value: '0000', text: 'Верт, мм/с'},
-                            {value: '0000', text: 'Гориз, мм/с'},
-                            {value: '0000', text: 'Ось, мм/с'}
+                            {value: '0000', text: 'T, °С', path: 'bearing_1,temperature'},
+                            {value: '0000', text: 'Верт, мм/с', path: 'bearing_1,vibration_axial'},
+                            {value: '0000', text: 'Гориз, мм/с', path: 'bearing_1,vibration_horizontal'},
+                            {value: '0000', text: 'Ось, мм/с', path: 'bearing_1,vibration_vertical'}
                         ],
                     },
                     {
                         text: '2 ПС',
                         children: [
-                            {value: '0000', text: 'T, °С'},
-                            {value: '0000', text: 'Верт, мм/с'},
-                            {value: '0000', text: 'Гориз, мм/с'},
-                            {value: '0000', text: 'Ось, мм/с'}
+                            {value: '0000', text: 'T, °С', path: 'bearing_2,temperature'},
+                            {value: '0000', text: 'Верт, мм/с', path: 'bearing_2,vibration_axial'},
+                            {value: '0000', text: 'Гориз, мм/с', path: 'bearing_2,vibration_horizontal'},
+                            {value: '0000', text: 'Ось, мм/с', path: 'bearing_2,vibration_vertical'}
                         ],
                     },
                     {
                         text: '7 ПС',
                         children: [
-                            {value: '0000', text: 'T, °С'},
-                            {value: '0000', text: 'Верт, мм/с'},
-                            {value: '0000', text: 'Гориз, мм/с'},
-                            {value: '0000', text: 'Ось, мм/с'}
+                            {value: '0000', text: 'T, °С', path: 'bearing_7,temperature'},
+                            {value: '0000', text: 'Верт, мм/с', path: 'bearing_7,vibration_axial'},
+                            {value: '0000', text: 'Гориз, мм/с', path: 'bearing_7,vibration_horizontal'},
+                            {value: '0000', text: 'Ось, мм/с', path: 'bearing_7,vibration_vertical'}
                         ],
                     },
                     {
                         text: '8 ПС',
                         children: [
-                            {value: '0000', text: 'T, °С'},
-                            {value: '0000', text: 'Верт, мм/с'},
-                            {value: '0000', text: 'Гориз, мм/с'},
-                            {value: '0000', text: 'Ось, мм/с'}
+                            {value: '0000', text: 'T, °С', path: 'bearing_8,temperature'},
+                            {value: '0000', text: 'Верт, мм/с', path: 'bearing_8,vibration_axial'},
+                            {value: '0000', text: 'Гориз, мм/с', path: 'bearing_8,vibration_horizontal'},
+                            {value: '0000', text: 'Ось, мм/с', path: 'bearing_8,vibration_vertical'}
                         ],
                     },
                     {
                         text: '9 ПС',
                         children: [
-                            {value: '0000', text: 'T, °С'},
+                            {value: '0000', text: 'T, °С', path: 'bearing_9,temperature'}
                         ],
                     },
                 ],
             },
             {value: '0000', text: 'Редуктор', children:[
-                {value: '0000', text: 'T на 3 ПС, °С'},
-                {value: '0000', text: 'T на 4 ПС, °С'},
-                {value: '0000', text: 'T на 5 ПС, °С'},
-                {value: '0000', text: 'T на 6 ПС, °С'},
+                {value: '0000', text: 'T на 3 ПС, °С', path: 'bearing_3,temperature'},
+                {value: '0000', text: 'T на 4 ПС, °С', path: 'bearing_4,temperature'},
+                {value: '0000', text: 'T на 5 ПС, °С', path: 'bearing_5,temperature'},
+                {value: '0000', text: 'T на 6 ПС, °С', path: 'bearing_6,temperature'},
             ]},
             {
                 text: 'Маслобак',
-                children: [{value: '0000', text: 'Уровень масла, %'}, {value: '0000', text: 'Давление масла, кг/см2'}],
+                children: [
+                    {value: '0000', text: 'Уровень масла, %', path: 'oilSystem,oil_level'}, 
+                    {value: '0000', text: 'Давление масла, кг/см2', path: 'oilSystem,oil_pressure'}
+                ],
             },
             {
                 text: 'Газовый коллектор',
                 children: [
-                    {value: '0000', text: 'T газа, °С'}, 
-                    {value: '0000', text: 'Разряжение, мм.в.ст'},
-                    {value: '0000', text: 'Уровень пыли, мг/м3'}, 
+                    {value: '0000', text: 'T газа, °С', path: 'gasCollector,temperature_before'}, 
+                    {value: '0000', text: 'Разряжение, мм.в.ст', path: 'gasCollector,underpressure_before'},
+                    // {value: '0000', text: 'Уровень пыли, мг/м3'}, 
                 ],
             },
             {
                 text: 'Главный привод',
                 children: [
-                    {value: '0000', text: 'Ток, А'}, 
-                    {value: '0000', text: 'Ток двигателя, А'},
-                    {value: '0000', text: 'Напряжение ротера, кВт'}, 
-                    {value: '0000', text: 'Напряжение статера, кВт'}, 
+                    {value: '0000', text: 'Ток, А', path: 'mainGear,stator_current'}, 
+                    {value: '0000', text: 'Ток двигателя, А', path: 'mainGear,rotor_current'},
+                    {value: '0000', text: 'Напряжение ротера, кВт', path: 'mainGear,rotor_voltage'}, 
+                    {value: '0000', text: 'Напряжение статера, кВт', path: 'mainGear,stator_voltage'}, 
                 ],
             },
             {
                 text: 'Охладитель',
                 children: [
-                    {value: '0000', text: 'T воды до, °С'}, 
-                    {value: '0000', text: 'T воды после, °С'},
-                    {value: '0000', text: 'T масла до, °С'}, 
-                    {value: '0000', text: 'T масла после, °С'}, 
+                    {value: '0000', text: 'T воды до, °С', path: 'cooler,water_temperature_before'}, 
+                    {value: '0000', text: 'T воды после, °С', path: 'cooler,water_temperature_after'},
+                    {value: '0000', text: 'T масла до, °С', path: 'cooler,oil_temperature_before'}, 
+                    {value: '0000', text: 'T масла после, °С', path: 'cooler,oil_temperature_after'}, 
                 ],
             },
         ],
-    };
-    
+    });
+    treeData$ = this.treeData.asObservable()
     ngOnInit() {
         // this.dataService.data$.subscribe((message: any) => {
             //     console.log(message['moment'])
@@ -175,6 +173,100 @@ export class GraphComponent implements OnInit {
     //     return this.values.map( (val: {moment: Date, value: number}, index: number) => [index, val.value] as TuiPoint)
     //  }
     
+    //  updateTree(val: ExhausterData){
+    //     this.treeData.next({
+    //         text: 'Фильтры',
+    //         children: [
+    //             {
+    //                 text: 'Подшипнки',
+    //                 children: [
+    //                     {
+    //                         text: '1 ПС',
+    //                         children: [
+    //                             {value: val.bearing_1.temperature?.toFixed(2), text: 'T, °С', path: 'bearing_1,temperature'},
+    //                             {value: val.bearing_1.vibration_axial?.toFixed(2) || '????', text: 'Верт, мм/с', path: 'bearing_1,vibration_axial'},
+    //                             {value: val.bearing_1.vibration_horizontal?.toFixed(2) || '????', text: 'Гориз, мм/с', path: 'bearing_1,vibration_horizontal'},
+    //                             {value: val.bearing_1.vibration_vertical?.toFixed(2) || '????', text: 'Ось, мм/с', path: 'bearing_1,vibration_vertical'}
+    //                         ],
+    //                     },
+    //                     {
+    //                         text: '2 ПС',
+    //                         children: [
+    //                             {value: val.bearing_2.temperature?.toFixed(2), text: 'T, °С', path: 'bearing_1,temperature'},
+    //                             {value: val.bearing_2.vibration_axial?.toFixed(2) || '????', text: 'Верт, мм/с', path: 'bearing_1,vibration_axial'},
+    //                             {value: val.bearing_2.vibration_horizontal?.toFixed(2) || '????', text: 'Гориз, мм/с', path: 'bearing_1,vibration_horizontal'},
+    //                             {value: val.bearing_2.vibration_vertical?.toFixed(2) || '????', text: 'Ось, мм/с', path: 'bearing_1,vibration_vertical'}
+    //                         ],
+    //                     },
+    //                     {
+    //                         text: '7 ПС',
+    //                         children: [
+    //                             {value: val.bearing_7.temperature?.toFixed(2), text: 'T, °С', path: 'bearing_1,temperature'},
+    //                             {value: val.bearing_7.vibration_axial?.toFixed(2) || '????', text: 'Верт, мм/с', path: 'bearing_1,vibration_axial'},
+    //                             {value: val.bearing_7.vibration_horizontal?.toFixed(2) || '????', text: 'Гориз, мм/с', path: 'bearing_1,vibration_horizontal'},
+    //                             {value: val.bearing_7.vibration_vertical?.toFixed(2) || '????', text: 'Ось, мм/с', path: 'bearing_1,vibration_vertical'}
+    //                         ],
+    //                     },
+    //                     {
+    //                         text: '8 ПС',
+    //                         children: [
+    //                             {value: val.bearing_8.temperature?.toFixed(2), text: 'T, °С', path: 'bearing_1,temperature'},
+    //                             {value: val.bearing_8.vibration_axial?.toFixed(2) || '????', text: 'Верт, мм/с', path: 'bearing_1,vibration_axial'},
+    //                             {value: val.bearing_8.vibration_horizontal?.toFixed(2) || '????', text: 'Гориз, мм/с', path: 'bearing_1,vibration_horizontal'},
+    //                             {value: val.bearing_8.vibration_vertical?.toFixed(2) || '????', text: 'Ось, мм/с', path: 'bearing_1,vibration_vertical'}
+    //                         ],
+    //                     },
+    //                     {
+    //                         text: '9 ПС',
+    //                         children: [
+    //                             {value: val.bearing_9.temperature?.toFixed(2), text: 'T, °С', path: 'bearing_1,temperature'},
+    //                         ],
+    //                     },
+    //                 ],
+    //             },
+    //             { text: 'Редуктор', children:[
+    //                 {value: val.bearing_3.temperature?.toFixed(2), text: 'T на 3 ПС, °С', path: 'bearing_3,temperature'},
+    //                 {value: val.bearing_4.temperature?.toFixed(2), text: 'T на 4 ПС, °С', path: 'bearing_4,temperature'},
+    //                 {value: val.bearing_5.temperature?.toFixed(2), text: 'T на 5 ПС, °С', path: 'bearing_5,temperature'},
+    //                 {value: val.bearing_6.temperature?.toFixed(2), text: 'T на 6 ПС, °С', path: 'bearing_6,temperature'},
+    //             ]},
+    //             {
+    //                 text: 'Маслобак',
+    //                 children: [
+    //                     {value: val.oilSystem.oil_level?.toFixed(2), text: 'Уровень масла, %', path: 'oilSystem,oil_level'}, 
+    //                     {value: val.oilSystem.oil_pressure?.toFixed(2), text: 'Давление масла, кг/см2', path: 'oilSystem,oil_pressure'}
+    //                 ],
+    //             },
+    //             {
+    //                 text: 'Газовый коллектор',
+    //                 children: [
+    //                     {value: val.gasCollector.temperature_before?.toFixed(2), text: 'T газа, °С', path: 'gasCollector,temperature_before'}, 
+    //                     {value: val.gasCollector.underpressure_before?.toFixed(2), text: 'Разряжение, мм.в.ст', path: 'gasCollector,underpressure_before'},
+    //                     // {value: '0000', text: 'Уровень пыли, мг/м3'}, 
+    //                 ],
+    //             },
+    //             {
+    //                 text: 'Главный привод',
+    //                 children: [
+    //                     {value: val.mainGear.stator_current?.toFixed(2), text: 'Ток, А', path: 'mainGear,stator_current'}, 
+    //                     {value: val.mainGear.rotor_current?.toFixed(2), text: 'Ток двигателя, А', path: 'mainGear,rotor_current'},
+    //                     {value: val.mainGear.rotor_voltage?.toFixed(2), text: 'Напряжение ротера, кВт', path: 'mainGear,rotor_voltage'}, 
+    //                     {value: val.mainGear.stator_voltage?.toFixed(2), text: 'Напряжение статера, кВт', path: 'mainGear,stator_voltage'}, 
+    //                 ],
+    //             },
+    //             {
+    //                 text: 'Охладитель',
+    //                 children: [
+    //                     {value: val.cooler.water_temperature_before?.toFixed(2), text: 'T воды до, °С', path: 'cooler,water_temperature_before'}, 
+    //                     {value:  val.cooler.water_temperature_after?.toFixed(2), text: 'T воды после, °С', path: 'cooler,water_temperature_after'},
+    //                     {value:  val.cooler.oil_temperature_before?.toFixed(2), text: 'T масла до, °С', path: 'cooler,oil_temperature_before'}, 
+    //                     {value:  val.cooler.oil_temperature_after?.toFixed(2), text: 'T масла после, °С', path: 'cooler,oil_temperature_after'}, 
+    //                 ],
+    //             },
+    //         ],
+    //     });
+    //  }
+
     newFrom([date, time]: [TuiDay, TuiTime]){
         this.data = {
             from: new Date(date.toLocalNativeDate().getTime() + time?.toAbsoluteMilliseconds() || 0),
